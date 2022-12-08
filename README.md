@@ -1,4 +1,4 @@
-# COMP4805 FYP
+# Non-Fungible Finance
 
 https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md
 
