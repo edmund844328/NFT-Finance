@@ -11,7 +11,7 @@ Widthdraw ETH: withdrawETH(uint256 amount);
 
 Sell NFT instantly: liquidateNFT(address contractAddr, uint256 tokenId);
 
-Buu\y NFT instantly: buyNFT(address nftContractAddr, uint256 tokenId); //subject to future change
+Buy NFT instantly: buyNFT(address nftContractAddr, uint256 tokenId); //subject to future change
 
 Start NFT Loan: startLoan(address nftContractAddr, uint256 loanAmount, uint256 dueTime, uint256 tokenId); //loan amount: The price of the loan
 
