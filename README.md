@@ -16,33 +16,39 @@ Buy NFT instantly: buyNFT(address nftContractAddr, uint256 tokenId); //subject t
 Start NFT Loan: startLoan(address nftContractAddr, uint256 loanAmount, uint256 dueTime, uint256 tokenId); //loan amount: The price of the loan
 
 Repay NFT Loan: repayLoan(address nftContractAddr, uint256 tokenId);
+___________________________________________________________________________________________________________
+
+NFF NFT contract address:0x6611e8755d4f8BDed142bdF32B941e3b9a20a984
+
+Etherscan: https://goerli.etherscan.io/address/0x6611e8755d4f8BDed142bdF32B941e3b9a20a984
+
 
 ___________________________________________________________________________________________________________
 
-NFF Main contract address: 0x6826D0b1d84bB5FabC7CB59c2C98B3A30B7ac1cd
+NFF Main contract address: 0x2ef8611d72d0e4a8a6bef90708a6dcca526408e0
 
-Etherscan: https://goerli.etherscan.io/address/0x6826D0b1d84bB5FabC7CB59c2C98B3A30B7ac1cd
-
-___________________________________________________________________________________________________________
-
-NFF Bank Oracle Daily Operation address: 0xdb4FA6Fd9A94d6b8cB973b72430Ea5E3FCa78F37
-
-Etherscan: https://goerli.etherscan.io/address/0xdb4FA6Fd9A94d6b8cB973b72430Ea5E3FCa78F37
-
-ChainLink Automation Daily Bank Operation address: 0x302Bf688A9EE64E743532e5EA07ABD50938D87c9
-
-Etherscan: https://goerli.etherscan.io/address/0x302Bf688A9EE64E743532e5EA07ABD50938D87c9
-
-ChainLink: https://automation.chain.link/goerli/115046554451189806120906183883200446415190812507387657156356143283453985940470
+Etherscan: https://goerli.etherscan.io/address/0x2ef8611d72d0e4a8a6bef90708a6dcca526408e0
 
 ___________________________________________________________________________________________________________
 
-NFF Oracle Price Fetch address: 0x982208e2a56970d1FCea9A0790Fe32D4258B5E69
+NFF Bank Oracle Daily Operation address: 0xbe564588CB90534FE40Ed68E5C968CB90B179b48
 
-Etherscan: https://goerli.etherscan.io/address/0x982208e2a56970d1FCea9A0790Fe32D4258B5E69
+Etherscan: https://goerli.etherscan.io/address/0xbe564588CB90534FE40Ed68E5C968CB90B179b48
 
-ChainLink Automation Daily Price Fetch address: 0xb9A7158a4c4DcE644713979677835841acdCDcb8
+ChainLink Automation Daily Bank Operation address: 0x0746E53e4A25dA6E2cD396C09b1a0dAD9BEACDA0
 
-Etherscan: https://goerli.etherscan.io/address/0xb9A7158a4c4DcE644713979677835841acdCDcb8
+Etherscan: https://goerli.etherscan.io/address/0x0746E53e4A25dA6E2cD396C09b1a0dAD9BEACDA0
 
-ChainLink: https://automation.chain.link/goerli/15983090497736984939294614892905785222682395159290379274986368127913912404911
+ChainLink: https://automation.chain.link/goerli/87494849461325112329053353542165801479140516437474795022394749357645384803621
+
+___________________________________________________________________________________________________________
+
+NFF Oracle Price Fetch address: 0x7c98d867da2a291034c55958c598be178838d2d5
+
+Etherscan: https://goerli.etherscan.io/address/0x7c98d867da2a291034c55958c598be178838d2d5
+
+ChainLink Automation Daily Price Fetch address: 0x7020CecB7F6E8fee43E3AE3435dDc10bef2541CC
+
+Etherscan: https://goerli.etherscan.io/address/0x7020CecB7F6E8fee43E3AE3435dDc10bef2541CC
+
+ChainLink: https://automation.chain.link/goerli/115621778549660629932246167353481473176322454721975905848608048378255729283531

@@ -1,33 +1,71 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Collapse from '@material-ui/core/Collapse';
 import Divider from '@mui/material/Divider';
 import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
-import { useEthers, useEtherBalance, useContractFunction } from "@usedapp/core";
+import { useEthers, useEtherBalance } from "@usedapp/core";
 import { formatEther, parseEther } from "ethers/lib/utils";
 import eth from '../images/eth.png';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@mui/material/Button';
-import abi from '../contracts/Bank/abi.json';
+import bankAbi from '../contracts/Bank/abi.json';
 import { Contract } from '@ethersproject/contracts';
 import ContractAddress from './ContractAddress.json'
 
 function DepositPage() {
-    const { account } = useEthers()
+    const { account } = useEthers();
+    const { library } = useEthers();
     const Balance = useEtherBalance(account)
     const balance = Balance ? parseFloat(formatEther(Balance)).toFixed(4) : "";
     const [slideIn, setSlideIn] = useState(true);
     const [depositValue, setDepositValue] = useState(0);
+    const [APY, setAPY] = useState(0);
+    const [MinDeposit, setMinD] = useState(0);
     const depositInput = depositValue === 0 || depositValue ? depositValue : '';
     const handleToggle = () => {
         setSlideIn(!slideIn);
     };
-    const contractAddress = ContractAddress.bank;
-    const contract = new Contract(contractAddress, abi);
+    const bankAddress = ContractAddress.bank;
+    const bankContract = new Contract(bankAddress, bankAbi, library.getSigner());
 
-    const { send } = useContractFunction(contract, "deposit");
+    // const { send } = useContractFunction(contract, "depositETH");
+
+    async function EthDeposit(){
+        try{
+            const depositTx = await bankContract.depositETH({ value: parseEther(depositValue.toString()) });
+            // send({value: parseEther(depositValue.toString())});
+            await depositTx.wait();
+            alert("A deposit of " + depositValue + " ETH is completed");
+        } catch(err){
+            if(err){
+                alert("Minimum Deposit not met");
+            }
+        }
+    }
+
+    useEffect(() => {
+        if (bankContract && account) {
+            async function getAPY() {
+                const apy = await bankContract.APY();
+                // console.log("apy: ",parseFloat(formatEther(apy)));
+                setAPY(parseFloat(formatEther(apy)));
+            }
+            getAPY();
+        }
+    }, [account]);
+
+    useEffect(() => {
+        if (bankContract && account) {
+            async function getMinD() {
+                const minD = await bankContract.minDeposit();
+                // console.log("apy: ",parseFloat(formatEther(minD)));
+                setMinD(parseFloat(formatEther(minD)));
+            }
+            getMinD();
+        }
+    }, [account]);
     
     const useStyles = makeStyles({
         input: {
@@ -96,10 +134,10 @@ function DepositPage() {
                             <Grid item xs={4}>
                                 <Box textAlign="left" marginLeft="5%">
                                     <Box className='depositFont2' marginBottom="5%">
-                                        Utilization rate
+                                        Minimum Deposit
                                     </Box>
                                     <Box fontWeight="bold">
-                                        40.23 %
+                                        {MinDeposit} ETH
                                     </Box>
                                 </Box>
                             </Grid>
@@ -116,10 +154,10 @@ function DepositPage() {
                             <Grid item xs={4}>
                                 <Box textAlign="right" marginRight="5%">
                                     <Box className='depositFont2' marginBottom="5%">
-                                        Deposit APR
+                                        Deposit APY
                                     </Box>
                                     <Box fontWeight="bold">
-                                        7.47 %
+                                        {APY.toFixed(2)} %
                                     </Box>
                                 </Box>
                             </Grid>
@@ -178,7 +216,7 @@ function DepositPage() {
                             </Box>
                             <Button variant="contained" style={{
                                 borderRadius: 20, padding: "12px 24px", fontSize: "18px", margin: "35px 10px 20px 10px", width: "90%"
-                            }} onClick={() => send({value: parseEther(depositValue.toString())})}>
+                            }} onClick={() => EthDeposit() }>
                                 Deposit
                             </Button>
                         </Box>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useEthers } from "@usedapp/core";
 import { Network, Alchemy } from "alchemy-sdk"
 import Box from '@mui/material/Box';
@@ -7,35 +7,26 @@ import LoanedNFTCard from './LoanedNFTCard.js'
 import Grid from '@mui/material/Grid';
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
+import { Context } from './Context.js';
+import ContractAddress from './ContractAddress.json'
+import abi from '../contracts/Bank/abi.json';
+import { Contract } from '@ethersproject/contracts';
+import { formatEther } from "ethers/lib/utils";
 
 function ViewNFTPage() {
-
-    const { account } = useEthers()
+    const { account, library } = useEthers();
     const [nfts, setNfts] = useState([])
-    const [own, setOwn] = useState(true);
+    const [mortgage, setMortgage] = useState([])
+    const [mortNFTs, setMortNFTs] = useState([])
+    const [nftPrice, setNftPrice] = useState(0)
+    const { own, setOwn } = useContext(Context);
 
-    // const axios = require("axios");
-    // const options = {
-    //     method: 'GET',
-    //     url: 'https://opensea15.p.rapidapi.com/api/v1/assets',
-    //     params: {owner: `${account}`},
-    //     headers: {
-    //       'X-RapidAPI-Key': '73764aa404msh6e5e4f2abf95983p14f036jsna93351c64534',
-    //       'X-RapidAPI-Host': 'opensea15.p.rapidapi.com'
-    //     }
-    // };
+    const contractAddress = ContractAddress.bank;
+    var contract = null;
+    if (library) {
+        contract = new Contract(contractAddress, abi, library.getSigner());
+    }
 
-    // const getNftData = async() => {
-    //     await axios.request(options).then(function (response) {
-    //         const data = response.data
-    //         setNfts(data.assets)
-    //         // debugger
-    //     }).catch(function (error) {
-    //         console.error(error);
-    //     });
-    // }
-
-    
     useEffect(() => {
         const settingsGetNft = {
             apiKey: "6RB8WVyUkqB6YjCiiKX57HqZL7RRiVYL", // Replace with your Alchemy API Key.
@@ -54,6 +45,52 @@ function ViewNFTPage() {
         }
         getNftData()
     }, [account])
+
+    useEffect( () => {
+        if (contract && account) {
+            async function getMortgage() {
+                const mortgages = await contract.getAllUserLoan(account);
+                setMortgage(mortgages);
+            }
+            getMortgage();
+        }
+    }, [account]);
+
+    useEffect( () => {
+        if (contract) {
+            async function getAssetPrice() {
+                const assetPrice = await contract.nftLiquidationPrice();
+                setNftPrice(parseFloat(formatEther(assetPrice)));
+            }
+            getAssetPrice();
+        }
+    }, [contract]);
+
+    useEffect(() => {
+        const settings = {
+            apiKey: "6RB8WVyUkqB6YjCiiKX57HqZL7RRiVYL", // Replace with your Alchemy API Key.
+            network: Network.ETH_GOERLI, // Replace with your network.
+        };
+        async function getNFTs(address, tokenId, i) {
+            if(account && mortgage){
+                const alchemy = new Alchemy(settings);
+                alchemy.nft.getNftMetadata(address, tokenId).then(function (response) {
+                    const name = response.rawMetadata.name;
+                    const image = response.rawMetadata.image;
+                    const newObj = Object.assign({name: name, image: image}, mortgage[i]);
+                    mortNFTs.push(newObj)
+                    setMortNFTs(mortNFTs);
+                    console.log(mortNFTs);
+                }).catch(function (error) {
+                    console.error(error);
+                });
+            }
+        }
+        for (var i = 0; i < mortgage.length; i ++) {
+            getNFTs(mortgage[i].nft.nftContractAddr.toString(), mortgage[i].nft.tokenId.toString(), i)
+        }
+        console.log(mortgage.length);
+    }, [account, mortgage])
 
     return (
         <Box justifyContent="center" alignItems="center" textAlign="center">
@@ -76,11 +113,11 @@ function ViewNFTPage() {
                     {own ?
                     nfts.map((nft, index) => {
                         return <Grid item md={3} xs={12}>
-                            <SellNFTCard nft={nft} key={index} />
+                            <SellNFTCard nft={nft} key={index} price={nftPrice}/>
                         </Grid>
                     })
                     :
-                    nfts.map((nft, index) => {
+                    mortNFTs.map((nft, index) => {
                         return <Grid item md={3} xs={12}>
                             <LoanedNFTCard nft={nft} key={index} />
                         </Grid>
