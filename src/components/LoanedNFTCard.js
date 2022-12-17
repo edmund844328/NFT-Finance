@@ -39,13 +39,50 @@ function LoanedNFTCard({ nft }) {
         contract = new Contract(bankContract, abi, library.getSigner());
     }
 
-	
-	const [loanAmount, setLoanAmount] = useState('');
+	// const [loanAmount, setLoanAmount] = useState('');
+	var repayment = 0;
 	const handleLoanInputChange = event => {
-		setLoanAmount(event.target.value);
+		repayment = event.target.value;
 	};
+
+	function setMax() {
+		document.getElementById("outlined-number").value = parseFloat(formatEther(nft.outstandBalance));
+		repayment = (formatEther(nft.outstandBalance));
+		console.log(formatEther(nft.outstandBalance));
+	}
+
+	function calNextMinPay(){
+		const debt = parseFloat(formatEther(nft.debt));
+		const ob = parseFloat(formatEther(nft.outstandBalance));
+		const baseCuRate = parseFloat(formatEther(nft.baseCumuRate));
+		const cuRate = parseFloat(formatEther(nft.cumuRate));
+		console.log(debt,ob,baseCuRate,cuRate)
+		if (baseCuRate + cuRate > 1){
+			return ob.toFixed(3);
+		}
+		else if(debt*(baseCuRate + cuRate) - ob <= 0 ){
+			return 0;
+		}
+		else{
+			return (debt*(baseCuRate + cuRate) - ob).toFixed(4);
+		}
+	}
+
 	async function executeTransaction(nft, tokenId) {
-		await bankContract.repayLoan(nft, tokenId, {value: parseEther(loanAmount.toString())});
+		// console.log("nftaddr:", nft)
+		// console.log("tokenId:", formatEther(tokenId)*(10**18))
+		try{
+			const tx = await bankContract.repayLoan(nft, formatEther(tokenId)*(10**18), {value: parseEther(repayment.toString())});
+			await tx.wait();
+			alert("Transaction comfirmed")
+		}catch(err){
+			if(err.message === "MetaMask Tx Signature: User denied transaction signature."){
+				alert("Please sign the message on Metamask");
+			}
+			else{
+				alert("You have overpaid your loan");
+			}
+		}
 		setRepay(false);
 	}
 
@@ -54,7 +91,18 @@ function LoanedNFTCard({ nft }) {
             async function getPrice() {
 				const floorPrice = await bankContract.nftFloorPrice();
                 setPrice(formatEther(floorPrice));
-                console.log(floorPrice);
+                // console.log(floorPrice);
+            }
+            getPrice();
+        }
+    }, [account]);
+
+	useEffect( () => {
+        if (contract && account) {
+            async function getPrice() {
+				const floorPrice = await bankContract.nftFloorPrice();
+                setPrice(formatEther(floorPrice));
+                // console.log(floorPrice);
             }
             getPrice();
         }
@@ -109,14 +157,16 @@ function LoanedNFTCard({ nft }) {
 												Floor price:<br></br>
 												Outstanding payment:<br></br>
 												Due date:<br></br>
+												Next Min Payment:<br></br>
 											</DialogContentText>
 										</Grid>
 										<Grid item md={5} >
 											<DialogContentText id="alert-dialog-description">
 												{nft.name}<br></br>
 												{price} ETH<br></br>
-												{formatEther(nft.outstandBalance)} ETH<br></br>
+												{(parseFloat(formatEther(nft.outstandBalance))).toFixed(4)} ETH<br></br>
 												{time}<br></br>
+												{calNextMinPay()} ETH<br></br>
 											</DialogContentText>
 										</Grid>
 									</Grid>
@@ -126,19 +176,27 @@ function LoanedNFTCard({ nft }) {
 											id="outlined-number"
 											label="Repayment"
 											type="number"
-											value= {loanAmount}
+											// value= {loanAmount}
             								onChange= {handleLoanInputChange}
 											InputLabelProps={{
 												shrink: true,
 											}}
+											inputProps={{
+												style: {
+												  height: 60,
+												  paddingTop: 0,
+												  paddingBottom: 0
+												},
+											  }}
 										/>
+										<Button style={{ height: 60 }} onClick={() => setMax() }>Max</Button>
 									</Box>
 								</Grid>
 							</Grid>
 						</DialogContent>
 						<DialogActions>
 							<Button onClick={() => setRepay(false)}>Back</Button>
-							<Button onClick={() => executeTransaction(nft.contract.address, nft.tokenId)} autoFocus>
+							<Button onClick={() => executeTransaction(nft.nft[0], nft.nft[1])} autoFocus>
 								Confirmed
 							</Button>
 						</DialogActions>
